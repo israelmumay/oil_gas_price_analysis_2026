@@ -1,0 +1,281 @@
+---
+title: "Oil and Gas Project"
+author: "Adam Mills, Israel Kakumba Mumay, Ryan Norton Stein"
+format: pdf
+editor: visual
+---
+
+## Load Libraries
+
+```{r}
+#| message: false
+library(tidyverse)
+```
+
+## Load the Data
+
+```{r}
+# load the state file
+data = read.csv('iran_war_gas_prices_by_state.csv')
+```
+
+## Basic EDA
+
+#### Data Structure
+
+```{r}
+# structure and size
+names(data)
+str(data)
+head(data)
+dim(data) # 50 rows 9 columns
+```
+
+- The file has 50 rows and 9 columns, one row per state. Two columns are text labels (state and region), one names the source, and six are numbers: three dated prices, the dollar increase, the percent increase, and the gap from the national average.
+
+#### Data Quality
+
+```{r}
+# missing values per column
+sum(colSums(is.na(data))) # 0
+sum(duplicated(data$state)) # 0
+```
+
+- No missing values and no state shows up twice.
+
+## Data Preparation
+
+#### Change Names
+
+```{r}
+# short names for the columns we use
+data$prewar = data$gas_price_prewar_feb27
+data$mar19 = data$gas_price_mar19_2026
+data$jan08 = data$gas_price_jan08_2026
+data$increase = data$price_increase_since_war
+data$pct = data$pct_increase_since_war
+```
+
+#### Compare Columns
+
+```{r}
+# check the increase columns against the prices
+max(abs(data$increase - (data$mar19 - data$prewar))) # 6.661338e-16
+max(abs(data$pct - 100 * data$increase / data$prewar)) # 0.04964539
+```
+
+- The dollar increase matches the March 19 price minus the Feb 27 price. The percent increase matches to within 0.05 percentage points. So both columns are correct.
+
+#### Change Region to a Category
+
+```{r}
+# region as a category
+data$region = factor(data$region)
+table(data$region)
+```
+
+- The four regions have 12, 11, 14, and 13 states, so the groups are close in size.
+
+#### Add Predictors
+
+```{r}
+# price change before the war jan 8 to feb 27
+data$pre_trend = data$prewar - data$jan08
+
+# coastal states typed as a short list
+coast = c('Maine', 'New Hampshire', 'Massachusetts', 'Rhode Island', 'Connecticut',
+          'New York', 'New Jersey', 'Delaware', 'Maryland', 'Virginia',
+          'North Carolina', 'South Carolina', 'Georgia', 'Florida', 'Alabama',
+          'Mississippi', 'Louisiana', 'Texas', 'California', 'Oregon',
+          'Washington', 'Alaska', 'Hawaii')
+
+# check if coastal or not
+data$coastal = factor(ifelse(data$state %in% coast, 'yes', 'no'))
+table(data$coastal) # 27 no, 23 yes
+
+# population density (1975 population)
+idx = match(data$state, state.name)
+data$pop_density = state.x77[idx, 'Population'] * 1000 / state.x77[idx, 'Area']
+sum(is.na(data$pop_density)) # 0
+
+# summary of the new columns
+summary(data[c('pre_trend', 'pop_density')])
+```
+
+- From this we can see that 23 states are coastal and 27 are not. All 50 states matched the population data. The pre-war trend is positive for every state, from \$0.24 to \$0.76, so prices were already rising before the war.
+
+#### Data Summary
+
+```{r}
+# summary stats
+summary(data)
+```
+
+- The dollar increase (increase column) runs from \$0.68 to \$1.05 with a mean of \$0.81. The middle half of states fall between \$0.76 and \$0.84, so most states are close together. The percent increase (pct column) runs from 22.3% to 31.0% with a mean of 26.8%. Pre-war prices (gas_price_prewar_feb27) run from \$2.54 to \$4.52, and the mean (\$3.03) is above the median (\$2.90), which means a few expensive states pull the average up. Population density is off balance, with a mean of 149 and a median of 73.
+
+#### Log of Population Density
+
+```{r}
+# log of density to reduce the pull of very dense states
+data$log_density = log(data$pop_density)
+```
+
+- This makes a new column, log_density, that holds the natural log of each state’s population density. The original column stays the same.
+
+#### Before and After Taking the Log
+
+```{r}
+# before the log
+hist(data$pop_density, main = 'Population Density', 
+     xlab = 'people per square mile')
+
+# after the log
+hist(data$log_density, main = 'Log of Population Density', 
+     xlab = 'log of people per square mile')
+```
+
+- Before the log, more than 30 of the 50 states are under 100 people per square mile and a few stretch out to 1,000. After the log, the values are more balanced around 4, with Alaska as the one low point. We use the log version so a few dense states do not dominate the model.
+
+#### Check Pre-Trend Count
+
+```{r}
+table(data$pre_trend)
+```
+
+- 20 of the 50 states have a pre-war trend of \$0.30, and 30 states share three values (\$0.28, \$0.30, \$0.38).
+
+- Because so many states share the same value, the Jan. 8 prices look rounded or estimated. So include pre_trend as a candidate predictor and say in the report that its data quality is questionable.
+
+#### Check Increase Count
+
+```{r}
+# how many states share each increase value
+table(data$increase)
+```
+
+- The values are concentrated. 36 of the 50 states fall in the range \$0.76 to \$0.84.
+
+## Plots
+
+#### Histogram of the Response
+
+```{r}
+# histogram of the response
+hist(data$increase,
+     main = 'Gas Price Increase, Feb. 27 to Mar. 19',
+     xlab = 'increase (dollars per gallon)')
+```
+
+- About 35 of the 50 states had an increase between \$0.75 and \$0.85. A small group of states stretches out to \$1.05, so the distribution leans to the right.
+
+#### Increase vs. Pre-War Prices
+
+```{r}
+# increase (response) against pre-war price (predictor)
+plot(data$prewar, data$increase, pch = 16,
+     main = 'Increase vs. Pre-War Price',
+     xlab = 'pre-war price (dollars per gallon)',
+     ylab = 'increase (dollars per gallon)')
+abline(lm(increase ~ prewar, data = data), col = 'red', lty = 2)
+cor(data$prewar, data$increase)
+```
+
+- The relationship is positive and close to a straight line (r = 0.89). States that were more expensive pre-war had a larger dollar increase than states that were cheaper pre-war. Most states sit between \$2.50 and \$3.40, and only six are above \$3.50. Those six have a large effect on the slope, so we will double check them for influence later.
+
+#### Increase against Pre-War Trend
+
+```{r}
+# increase against pre-war trend
+plot(data$pre_trend, data$increase, pch = 16,
+     main = 'Increase vs. Pre-War Trend',
+     xlab = 'price change, Jan. 8 to Feb. 27 (dollars per gallon)',
+     ylab = 'increase (dollars per gallon)')
+abline(lm(increase ~ pre_trend, data = data), col = 'red', lty = 2)
+cor(data$pre_trend, data$increase)
+```
+
+- The relationship is positive and moderate (r = 0.59). States whose prices rose more before the war also tended to rise more after it began. The pattern is much looser than for pre-war price (r = 0.89). Many states share the same trend value of \$0.30, which stacks them in a vertical line.
+
+#### Increase vs. Population Density
+
+```{r}
+# increase against log population density
+plot(data$log_density, data$increase, pch = 16,
+     main = 'Increase vs. Population Density',
+     xlab = 'log of people per square mile',
+     ylab = 'increase (dollars per gallon)')
+abline(lm(increase ~ log_density, data = data), col = 'red', lty = 2)
+cor(data$log_density, data$increase)
+```
+
+- There is almost no linear relationship (r = 0.09). The fitted line is flat, so density alone does not explain the increase.
+
+#### Increase by Region
+
+```{r}
+# increase by region
+boxplot(increase ~ region, data = data,
+        main = 'Gas Price Increase by Region',
+        xlab = 'region',
+        ylab = 'increase (dollars per gallon)')
+```
+
+- The West has the highest median increase (about \$0.85) and the widest spread, from \$0.76 to \$1.05. The Northeast is next (about \$0.82) and is tightly grouped. The Midwest and South are lowest (about \$0.76). The spread is not the same across regions, so we will test for equal variance before trusting the ANOVA.
+
+#### **Increase by Coastal Access**
+
+```{r}
+# increase by coastal
+boxplot(increase ~ coastal, data = data,
+        main = 'Gas Price Increase by Coastal Access',
+        xlab = 'coastal state',
+        ylab = 'increase (dollars per gallon)')
+```
+
+- The medians are close (\$0.80 for coastal, \$0.78 for non-coastal) and the boxes overlap.
+
+#### **Correlations**
+
+```{r}
+# how the number predictors relate to each other
+nums = c('increase', 'prewar', 'pre_trend', 'log_density')
+round(cor(data[nums]), 2)
+```
+
+- Pre-war price has the strongest correlation with the increase (0.89), followed by pre-war trend (0.59). Log density is close to zero (0.09). Pre-war price and pre-war trend are highly correlated with each other (0.82), so they carry overlapping information.
+
+#### Sort the Data
+
+```{r}
+# states with the largest increases
+head(data[order(-data$increase), c('state', 'region', 'prewar', 'pre_trend', 'increase')])
+
+# states with the smallest pre-war trend
+head(data[order(data$pre_trend), c('state', 'pre_trend', 'increase')])
+
+# states with the largest pre-war trend
+head(data[order(-data$pre_trend), c('state', 'pre_trend', 'increase')])
+
+# state with the lowest population density
+data[which.min(data$pop_density), c('state', 'pop_density')]
+```
+
+**Largest increases**
+
+- The five largest increases are all in the West: Hawaii (\$1.05), California (\$1.01), Washington (\$0.97), Nevada (\$0.94), and Oregon (\$0.88). These are also the five states with the highest pre-war prices, all above \$3.70. Kentucky ties Oregon at \$0.88 but had a pre-war price of only \$2.84, so its increase is high for a cheap state.
+
+**Smallest pre-war trend**
+
+- Hawaii had the smallest price change before the war (\$0.24) but the largest increase after it began (\$1.05), so it goes against the overall pattern. The other states with small trends (Oklahoma, Indiana, Iowa, Kansas, Texas) had small increases, between \$0.69 and \$0.78.
+
+**Largest pre-war trend**
+
+- Washington (\$0.76), California (\$0.64), Oregon (\$0.60), and Nevada (\$0.54) had the largest price changes before the war, and all four had large increases after. These four West Coast area states are the points on the right side of the trend plot.
+
+**Lowest population density**
+
+- Alaska has the lowest density at 0.64 people per square mile. It is the single low point on the log density histogram.
+
+**Overall takeaway**
+
+- The same small group of Western states (Hawaii, California, Washington, Nevada, Oregon) sits at the extreme end of the increase, the pre-war price, and mostly the pre-war trend. They will have a large effect on any regression line, so they are the first states to look at in the influence checks. Kentucky and Hawaii are the two states that do not fit the general pattern.
