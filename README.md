@@ -1,4 +1,4 @@
-# oil_gas_price_analysis_2026
+# Oil and Gas Price Analysis
 
 **Group:** Adam Mills, Israel Kakumba Mumay, Ryan Norton Stein
 
