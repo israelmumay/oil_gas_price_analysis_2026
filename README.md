@@ -64,15 +64,3 @@ The data is the state file from a Kaggle dataset on the 2026 Iran war. It lists 
 2. Test whether region still matters after pre-war price is in the model.
 3. Check predictor overlap with VIF and choose the final model.
 4. Check the model assumptions and the influential states.
-
-## How to run it
-
-1. Install R, RStudio, and Quarto.
-2. In R, run `install.packages('tidyverse')`.
-3. Keep the `.qmd` and the CSV in the same folder.
-4. Open `LM_project2.qmd` in RStudio and click Render.
-
-## Timeline
-
-- Proposal presentation: 10 to 15 minutes, about 10 slides
-- Final report due: December 10, 2026
