@@ -119,6 +119,10 @@ head(clean[order(-clean$pop_density), cols]) # New Jersey, Rhode Is...
 # states with the lowest population density
 tail(clean[order(-clean$pop_density), cols]) # North Dakota, South Dak...
 
-
+#--------- CLEANED DATA FILE ---------#
 # final check
 dim(clean) # 50 rows 11 cols
+
+# this creates a cleaned data file
+write.csv(clean, 'gas_clean.csv', row.names = FALSE)
+
