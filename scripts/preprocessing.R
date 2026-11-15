@@ -40,6 +40,9 @@ clean = data.frame(
 
 #--------- FEATURE ENGINEERING ---------#
 # engineered features
+# price change before the war
 clean$pre_trend = clean$prewar - clean$jan08 # very weak predictor
-clean$pop_density = density # ppl per sq mile
+
+# ppl per sq mile
+clean$pop_density = density
 
