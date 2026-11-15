@@ -1,0 +1,51 @@
+"state","region","cooks_d"
+"Hawaii","West",0.705800982943844
+"California","West",0.147158861017503
+"Kentucky","South",0.124437212997005
+"Oregon","West",0.11603824856307
+"Minnesota","Midwest",0.11084795294815
+"Kansas","Midwest",0.0455066165319175
+"Alaska","West",0.0424103230384517
+"Arizona","West",0.0416482687810323
+"Nevada","West",0.0324257716330081
+"Utah","West",0.0294819994288164
+"Oklahoma","South",0.0238200915347113
+"Washington","West",0.0178252177283566
+"Colorado","West",0.0167907841111335
+"Vermont","Northeast",0.0146389908225895
+"Illinois","Midwest",0.00667846652436566
+"New York","Northeast",0.00665761102267424
+"Michigan","Midwest",0.00595757767631799
+"New Mexico","West",0.0059097080575231
+"Rhode Island","Northeast",0.00548654775253452
+"Pennsylvania","Northeast",0.00404779023994122
+"Iowa","Midwest",0.00358053288928978
+"Indiana","Midwest",0.003200298074644
+"Wisconsin","Midwest",0.00307733729963231
+"Florida","South",0.00307733729963231
+"West Virginia","South",0.00307733729963231
+"Missouri","Midwest",0.00270497502407289
+"Wyoming","West",0.00241371525861411
+"North Dakota","Midwest",0.00241371525861411
+"Arkansas","South",0.00195448826144531
+"Georgia","South",0.00194493749718412
+"Montana","West",0.00117028849660016
+"Virginia","South",0.00117028849660016
+"Nebraska","Midwest",0.00092793091908333
+"Alabama","South",0.00092793091908333
+"New Hampshire","Northeast",0.000820244220205356
+"Mississippi","South",0.000793684752194581
+"Delaware","Northeast",0.000580180428953933
+"Maine","Northeast",0.000575569204333306
+"New Jersey","Northeast",0.000395550449158253
+"South Dakota","Midwest",0.000329992037568732
+"South Carolina","South",0.000329992037568732
+"Louisiana","South",0.00030236356318508
+"Massachusetts","Northeast",0.000267249386835823
+"Maryland","Northeast",0.000209920318824102
+"Ohio","Midwest",9.81905563929174e-05
+"North Carolina","South",9.81905563929174e-05
+"Connecticut","Northeast",3.32046623695011e-05
+"Tennessee","South",2.45296927962368e-05
+"Texas","South",2.45296927962368e-05
+"Idaho","West",4.20794976915372e-09

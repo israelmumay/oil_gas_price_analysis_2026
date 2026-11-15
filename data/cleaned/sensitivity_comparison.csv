@@ -1,0 +1,3 @@
+"Model","Observations","Intercept","Prewar_Coefficient","R_Squared","Adjusted_R_Squared"
+"Original Model",50,0.3423,0.1531,0.7944,0.7901
+"Sensitivity Model",45,0.3539,0.149,0.829,0.825
