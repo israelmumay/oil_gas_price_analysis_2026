@@ -20,6 +20,7 @@ summary(clean)
 # check the increase columns against the prices
 max(abs(clean$increase - (clean$mar19 - clean$prewar))) # 6.661338e-16
 max(abs(clean$pct - 100 * clean$increase / clean$prewar)) # 0.04964539
+# this confirms that the $ and % increase match the data prices
 
 # group sizes
 table(clean$region) # 12 midwest states, 11 northeast, 14 south, 13 west
@@ -27,7 +28,6 @@ table(clean$coastal) # 27 no, 23 yes
 
 # list of state names for every region
 split(clean$state, clean$region)
-
 
 # missing values in the matched density
 sum(is.na(clean$pop_density)) # 0
@@ -51,20 +51,7 @@ for (var in names(num_data)) {
   boxplot(num_data[, var], main = paste('Box Plot of', var), ylab = var)
 }
 
-#--------- SCATTER PLOTS ---------#
-# number predictors only, response excluded
-features = c('prewar', 'pre_trend', 'pop_density')
-
-# scatterplot of the response against each predictor
-for (var in features) {
-  plot(clean[, var], clean$increase, pch = 16,
-       main = paste('Increase vs.', var),
-       xlab = var,
-       ylab = 'increase (dollars per gallon)')
-  abline(lm(clean$increase ~ clean[, var]), col = 'red', lty = 2)
-}
-
-#--------- CATEGORICAL BOX PLOTS ---------#
+# categorical box plots
 # increase by region
 boxplot(increase ~ region, data = clean,
         main = 'Gas Price Increase by Region',
@@ -77,9 +64,22 @@ boxplot(increase ~ coastal, data = clean,
         xlab = 'coastal state',
         ylab = 'increase (dollars per gallon)')
 
+#--------- SCATTER PLOTS ---------#
+# number predictors only (response excluded)
+features = c('prewar', 'pre_trend', 'pop_density')
+
+# scatterplot of the response against each predictor
+for (var in features) {
+  plot(clean[, var], clean$increase, pch = 16,
+       main = paste('Increase vs.', var),
+       xlab = var,
+       ylab = 'increase (dollars per gallon)')
+  abline(lm(clean$increase ~ clean[, var]), col = 'red', lty = 2)
+}
+
 #--------- FEATURE TRASFORMATION ---------#
 # transformed feature
-clean$log_density = log(density) # took the log to better represent the  
+clean$log_density = log(density) # took the log to better represent the data
 
 # before the log
 hist(clean$pop_density, main = 'Population Density',
@@ -97,7 +97,7 @@ for (var in features) {
   cat(var, round(cor(clean$increase, clean[, var]), 2), '\n')
 }
 
-#--------- SUMMARIES ---------#
+#--------- BASIC SUMMARIES ---------#
 # columns shown in every table
 cols = c('state', 'region', 'prewar', 'pre_trend', 'pop_density', 'increase')
 
