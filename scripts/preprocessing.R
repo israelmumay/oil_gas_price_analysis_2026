@@ -1,5 +1,4 @@
 #------------------------ PREPROCESSING ------------------------#
-
 #--------- LIBRAIRIES ---------#
 library(tidyverse)
 library(lawstat)
@@ -8,11 +7,11 @@ library(lawstat)
 # load state gas prices
 state_gas = read.csv('iran_war_gas_prices_by_state.csv')
 
-# # load daily prices
-# daily_prices = read.csv('iran_war_oil_prices_daily_2026.csv')
-# 
-# # load events timeline
-# events_timeline = read.csv('iran_war_key_events_timeline.csv')
+# load daily prices
+daily_prices = read.csv('iran_war_oil_prices_daily_2026.csv')
+
+# load events timeline
+events_timeline = read.csv('iran_war_key_events_timeline.csv')
 
 #--------- DATA PREP ---------#
 # coastal states
