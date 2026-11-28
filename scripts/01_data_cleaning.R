@@ -163,3 +163,19 @@ cat("Duplicate states:          ", sum(duplicated(states$state)), "\n")
 cat("Duplicate oil dates:       ", sum(duplicated(oil$date)), "\n")
 cat("----------------------------------------\n")
 cat("Data cleaning completed successfully.\n")
+
+# Additional integrity checks and regional classification audit
+stopifnot(setequal(states$state, state.name),
+          all(is.finite(states$pop_density)), all(states$pop_density > 0),
+          all(is.finite(states$log_density)), !anyDuplicated(events))
+price_cols <- c("gas_price_jan08_2026", "gas_price_prewar_feb27", "gas_price_mar19_2026")
+stopifnot(all(is.finite(as.matrix(states[, price_cols]))), all(states[, price_cols] > 0))
+oil_cols <- c("brent_usd_barrel", "wti_usd_barrel", "dubai_usd_barrel")
+stopifnot(all(is.finite(as.matrix(oil[, oil_cols]))), all(oil[, oil_cols] > 0),
+          all(diff(oil$date) > 0))
+region_check <- as.character(state.region[match(states$state, state.name)])
+region_check[region_check == "North Central"] <- "Midwest"
+print(data.frame(state = states$state, original = states$region,
+                 standard = region_check)[as.character(states$region) != region_check, ])
+print(table(oil$gap, useNA = "ifany"))
+print(events_cleaned[!events_cleaned$date %in% oil$date, ])

@@ -1,0 +1,618 @@
+---
+title: "Oil and Gas Project"
+author: "Adam Mills, Israel Kakumba Mumay, Ryan Norton Stein"
+format:
+  pdf:
+    toc: true
+    pdf-engine: xelatex
+execute:
+  warning: false
+  message: false
+editor: visual
+---
+
+## Introduction
+
+The purpose of this project is to study how oil and gasoline prices changed during the 2026 Iran war. We focus on gasoline prices across all 50 U.S. states between February 27 and March 19, 2026, and oil prices between February 9 and March 20, 2026.
+
+We use three datasets containing state gasoline prices, oil prices, and major events during the conflict. We also use population data from R to include population density as an additional predictor.
+
+The main questions we want to answer are:
+
+-   How did oil prices change before and during the war?
+
+-   How much did gasoline prices increase across the 50 states?
+
+-   Is there a relationship between pre-war gasoline prices and the dollar and percentage increases?
+
+-   Are there significant differences in gasoline price increases across regions?
+
+-   Do major events during the conflict line up with changes in oil prices?
+
+-   How sensitive are our results to influential observations and different model choices?
+
+To answer these questions, we use exploratory data analysis, simple and multiple linear regression, ANOVA, model diagnostics, and cross-validation. Since the data are observational, our goal is to understand the relationships between variables rather than establish causation.
+
+## Load Libraries
+
+```{r}
+#| message: false
+library(tidyverse)
+library(lawstat)
+library(lmtest)
+library(sandwich)
+library(car)
+```
+
+## Load the Data
+
+```{r}
+# load the state file
+data = read.csv('data/raw/iran_war_gas_prices_by_state.csv')
+```
+
+# Group 1: Data preparation and exploratory analysis
+
+## Data Structure
+
+```{r}
+# structure and size
+names(data)
+str(data)
+head(data)
+dim(data) # 50 rows 9 columns
+```
+
+The file has 50 rows and 9 columns, one row per state. Two columns are text labels (state and region), one names the source, and six are numbers: three dated prices, the dollar increase, the percent increase, and the gap from the national average.
+
+## Data Quality
+
+```{r}
+# missing values per column
+sum(colSums(is.na(data))) # 0
+sum(duplicated(data$state)) # 0
+```
+
+No missing values and no state shows up twice.
+
+## Data Preparation
+
+## Change Names
+
+```{r}
+# short names for the columns we use
+data$prewar = data$gas_price_prewar_feb27
+data$mar19 = data$gas_price_mar19_2026
+data$jan08 = data$gas_price_jan08_2026
+data$increase = data$mar19 - data$prewar
+data$pct = 100 * (data$mar19 - data$prewar) / data$prewar
+```
+
+## Compare Columns
+
+```{r}
+# check the increase columns against the prices
+max(abs(data$increase - data$price_increase_since_war)) # 6.661338e-16
+max(abs(data$pct - data$pct_increase_since_war)) # 0.04964539
+```
+
+The dollar increase matches the March 19 price minus the Feb 27 price. The percent increase matches to within 0.05 percentage points. So both columns are correct.
+
+## Change Region to a Category
+
+```{r}
+# region as a category
+data$region = factor(data$region)
+table(data$region)
+```
+
+The four regions have 12, 11, 14, and 13 states, so the groups are close in size.
+
+## Add Predictors
+
+```{r}
+# price change before the war jan 8 to feb 27
+data$pre_trend = data$prewar - data$jan08
+
+# coastal states typed as a short list
+coast = c('Maine', 'New Hampshire', 'Massachusetts', 'Rhode Island', 'Connecticut',
+          'New York', 'New Jersey', 'Delaware', 'Maryland', 'Virginia',
+          'North Carolina', 'South Carolina', 'Georgia', 'Florida', 'Alabama',
+          'Mississippi', 'Louisiana', 'Texas', 'California', 'Oregon',
+          'Washington', 'Alaska', 'Hawaii')
+
+# check if coastal or not
+data$coastal = factor(ifelse(data$state %in% coast, 'yes', 'no'))
+table(data$coastal) # 27 no, 23 yes
+
+# population density (1975 population)
+idx = match(data$state, state.name)
+data$pop_density = state.x77[idx, 'Population'] * 1000 / state.x77[idx, 'Area']
+sum(is.na(data$pop_density)) # 0
+
+# summary of the new columns
+summary(data[c('pre_trend', 'pop_density')])
+```
+
+From this we can see that 23 states are coastal and 27 are not. All 50 states matched the population data. The pre-war trend is positive for every state, from \$0.24 to \$0.76, so prices were already rising before the war.
+
+## Data Summary
+
+```{r}
+# summary stats
+summary(data)
+```
+
+The dollar increase (increase column) runs from \$0.68 to \$1.05 with a mean of \$0.81. The middle half of states fall between \$0.76 and \$0.84, so most states are close together. The percent increase (pct column) runs from 22.3% to 31.0% with a mean of 26.8%. Pre-war prices (gas_price_prewar_feb27) run from \$2.54 to \$4.52, and the mean (\$3.03) is above the median (\$2.90), which means a few expensive states pull the average up. Population density is off balance, with a mean of 149 and a median of 73.
+
+## Log of Population Density
+
+```{r}
+# log of density to reduce the pull of very dense states
+data$log_density = log(data$pop_density)
+```
+
+This makes a new column, log_density, that holds the natural log of each state’s population density. The original column stays the same.
+
+## Before and After Taking the Log
+
+```{r}
+# before the log
+hist(data$pop_density, main = 'Population Density',
+     xlab = 'people per square mile')
+
+# after the log
+hist(data$log_density, main = 'Log of Population Density',
+     xlab = 'log of people per square mile')
+```
+
+Before the log, more than 30 of the 50 states are under 100 people per square mile and a few stretch out to 1,000. After the log, the values are more balanced around 4, with Alaska as the one low point. We use the log version so a few dense states do not dominate the model.
+
+## Check Pre-Trend Count
+
+```{r}
+table(round(data$pre_trend, 2))
+```
+
+20 of the 50 states have a pre-war trend of \$0.30, and 30 states share three values (\$0.28, \$0.30, \$0.38).
+
+The repeated values suggest limited measurement precision. We retain pre_trend as a candidate predictor, but cannot establish whether the January prices were estimated.
+
+## Check Increase Count
+
+```{r}
+# how many states share each increase value
+table(round(data$increase, 2))
+```
+
+The values are concentrated. 36 of the 50 states fall in the range \$0.76 to \$0.84.
+
+## Plots
+
+## Histogram of the Response
+
+```{r}
+# histogram of the response
+hist(data$increase,
+     main = 'Gas Price Increase, Feb. 27 to Mar. 19',
+     xlab = 'increase (dollars per gallon)')
+
+```
+
+36 of the 50 states (72%) had an increase between \$0.75 and \$0.85. A small group of states experienced larger increases, reaching \$1.05, so the distribution is right-skewed.
+
+## Increase vs. Pre-War Prices
+
+```{r}
+# increase (response) against pre-war price (predictor)
+plot(data$prewar, data$increase, pch = 16,
+     main = 'Increase vs. Pre-War Price',
+     xlab = 'pre-war price (dollars per gallon)',
+     ylab = 'increase (dollars per gallon)')
+abline(lm(increase ~ prewar, data = data), col = 'red', lty = 2)
+cor(data$prewar, data$increase)
+```
+
+The relationship is positive and close to a straight line (r = 0.89). States that were more expensive pre-war had a larger dollar increase than states that were cheaper pre-war. Most states sit between \$2.50 and \$3.40, and only six are above \$3.50. Those six have a large effect on the slope, so we will double check them for influence later.
+
+## Increase against Pre-War Trend
+
+```{r}
+# increase against pre-war trend
+plot(data$pre_trend, data$increase, pch = 16,
+     main = 'Increase vs. Pre-War Trend',
+     xlab = 'price change, Jan. 8 to Feb. 27 (dollars per gallon)',
+     ylab = 'increase (dollars per gallon)')
+abline(lm(increase ~ pre_trend, data = data), col = 'red', lty = 2)
+cor(data$pre_trend, data$increase)
+```
+
+The relationship is positive and moderate (r = 0.59). States whose prices rose more before the war also tended to rise more after it began. The pattern is much looser than for pre-war price (r = 0.89). Many states share the same trend value of \$0.30, which stacks them in a vertical line.
+
+## Increase vs. Population Density
+
+```{r}
+# increase against log population density
+plot(data$log_density, data$increase, pch = 16,
+     main = 'Increase vs. Population Density',
+     xlab = 'log of people per square mile',
+     ylab = 'increase (dollars per gallon)')
+abline(lm(increase ~ log_density, data = data), col = 'red', lty = 2)
+cor(data$log_density, data$increase)
+```
+
+There is almost no linear relationship (r = 0.09). The fitted line is flat, so density alone does not explain the increase.
+
+## Increase by Region
+
+```{r}
+# increase by region
+boxplot(increase ~ region, data = data,
+        main = 'Gas Price Increase by Region',
+        xlab = 'region',
+        ylab = 'increase (dollars per gallon)')
+```
+
+The West has the highest median increase (about \$0.85) and the widest spread, from \$0.76 to \$1.05. The Northeast is next (about \$0.82) and is tightly grouped. The Midwest and South are lowest (about \$0.76). The spread is not the same across regions, so we will test for equal variance before trusting the ANOVA.
+
+## Increase by Coastal Access
+
+```{r}
+# increase by coastal
+boxplot(increase ~ coastal, data = data,
+        main = 'Gas Price Increase by Coastal Access',
+        xlab = 'coastal state',
+        ylab = 'increase (dollars per gallon)')
+```
+
+The medians are close (\$0.80 for coastal, \$0.78 for non-coastal) and the boxes overlap.
+
+## Correlations
+
+```{r}
+# how the number predictors relate to each other
+nums = c('increase', 'prewar', 'pre_trend', 'log_density')
+round(cor(data[nums]), 2)
+```
+
+Pre-war price has the strongest correlation with the increase (0.89), followed by pre-war trend (0.59). Log density is close to zero (0.09). Pre-war price and pre-war trend are highly correlated with each other (0.82), so they carry overlapping information.
+
+## Sort the Data
+
+```{r}
+# states with the largest increases
+head(data[order(-data$increase), c('state', 'region', 'prewar', 'pre_trend', 'increase')])
+
+# states with the smallest pre-war trend
+head(data[order(data$pre_trend), c('state', 'pre_trend', 'increase')])
+
+# states with the largest pre-war trend
+head(data[order(-data$pre_trend), c('state', 'pre_trend', 'increase')])
+
+# state with the lowest population density
+data[which.min(data$pop_density), c('state', 'pop_density')]
+```
+
+Largest increases
+
+The four largest increases occur in the West: Hawaii (\$1.05), California (\$1.01), Washington (\$0.97), and Nevada (\$0.94). Oregon and Kentucky tie for the fifth-largest increase at \$0.88. The five Western states also had the highest pre-war prices, all above \$3.70. Kentucky had a pre-war price of only \$2.84, making its increase unusually large compared to other states with similar prices.
+
+Smallest pre-war trend
+
+Hawaii had the smallest price change before the war (\$0.24) but the largest increase after it began (\$1.05), so it goes against the overall pattern. The other states with small trends (Oklahoma, Indiana, Iowa, Kansas, Texas) had small increases, between \$0.69 and \$0.78.
+
+Largest pre-war trend
+
+Washington (\$0.76), California (\$0.64), Oregon (\$0.60), and Nevada (\$0.54) had the largest price changes before the war, and all four had large increases after. These four West Coast area states are the points on the right side of the trend plot.
+
+Lowest population density
+
+Alaska has the lowest density at 0.64 people per square mile. It is the single low point on the log density histogram.
+
+Overall takeaway
+
+The same small group of Western states (Hawaii, California, Washington, Nevada, Oregon) sits at the extreme end of the increase, the pre-war price, and mostly the pre-war trend. They will have a large effect on any regression line, so they are the first states to look at in the influence checks. Kentucky and Hawaii are the two states that do not fit the general pattern.
+
+## Oil prices and event alignment
+
+The cleaned oil dataset contains 24 observations and the event timeline contains 11 records. We use February 28 as the conflict-period cutoff specified in the dataset. The oil dates are not equally spaced, so changes are between recorded observations rather than necessarily daily changes.
+
+```{r}
+oil <- read.csv("data/cleaned/oil.csv")
+events <- read.csv("data/cleaned/events.csv")
+oil$date <- as.Date(oil$date)
+events$date <- as.Date(events$date)
+stopifnot(!anyDuplicated(oil$date), all(diff(oil$date) > 0),
+          all(events$date %in% oil$date))
+oil$period <- ifelse(oil$date < as.Date("2026-02-28"),
+                     "Pre-war", "Conflict")
+aggregate(cbind(brent_usd_barrel, wti_usd_barrel, dubai_usd_barrel) ~ period,
+          data = oil, FUN = mean)
+table(oil$gap, useNA = "ifany")
+head(oil[order(-abs(oil$change)), c("date", "change", "gap", "event")], 5)
+matplot(oil$date, oil[, c("brent_usd_barrel", "wti_usd_barrel", "dubai_usd_barrel")],
+        type = "l", lty = 1, col = c("steelblue", "darkorange", "darkgreen"),
+        xlab = "Date", ylab = "Dollars per barrel")
+abline(v = as.numeric(as.Date("2026-02-28")), lty = 2)
+legend("topleft", c("Brent", "WTI", "Dubai"), lty = 1,
+       col = c("steelblue", "darkorange", "darkgreen"), bty = "n")
+```
+
+Average observed Brent prices rose from \$70.88 to \$97.96, WTI from \$65.58 to \$89.63, and Dubai from \$69.95 to \$97.42. These are averages of six pre-war and eighteen conflict observations, not time-weighted averages. Six of the 23 observation intervals exceed one day. All 11 event records match oil dates, including two records on March 18. The largest observed Brent increase was \$6.40 on February 28. Event alignment is descriptive and does not establish that any event caused a price movement.
+
+```{r}
+aggregate(cbind(increase, pct) ~ region, data = data, mean)
+```
+
+All 50 states experienced increases, averaging \$0.8062 per gallon and 26.78%. The West had the highest average dollar increase and the South the highest average percentage increase. Hawaii had the largest dollar increase (\$1.05), and Kentucky had the largest percentage increase (30.99%).
+
+# Group 2: Linear regression and ANOVA
+
+## Linear Regression of Increase \~ Prewar
+
+```{r}
+# fit the model
+fit = lm(increase ~ prewar, data = data)
+summary(fit)
+
+# 95% confidence interval for the slope
+confint(fit, 'prewar', level = 0.95) # (0.1305013, 0.1757117)
+
+# t test for the slope
+b1 = coef(summary(fit))['prewar', 'Estimate']
+se = coef(summary(fit))['prewar', 'Std. Error']
+df = df.residual(fit) # 48
+t_stat = (b1 - 0) / se # test statistic
+t_crit = qt(0.975, df = df) # critical value for a two-sided test, alpha = 0.05
+p_val = 2 * pt(abs(t_stat), df = df, lower.tail = FALSE) # two-sided p value
+
+t_stat # 13.61817
+t_crit # 2.010635
+p_val # 4.166268e-18
+
+# anova table and critical value for the f test
+anova(fit)
+qf(0.95, 1, 48) # 4.042652
+```
+
+Regression function: The estimated regression function is $\hat{Y} = 0.3423 + 0.1531X$, where X is the pre-war price and Y is the increase. Each additional dollar of pre-war price is associated with about a \$0.15 larger increase.
+
+t test for the slope: We test $H_0: \beta_1 = 0$ against $H_a: \beta_1 \neq 0$ at $\alpha = 0.05$. The decision rule is to reject $H_0$ if \|t\| \> t(0.975, 48) = 2.0106. The test statistic is t = 13.618 with a p-value of 4.17e-18. Since 13.618 \> 2.0106 and the p-value is less than 0.05, we reject null. There is strong evidence of a linear relationship between pre-war price and the increase.
+
+Confidence interval for the slope: By hand, the 95% confidence interval is 0.1531 $\pm$ (2.0106 × 0.0112) = (0.1305, 0.1757). We are 95% confident that each additional dollar of pre-war price goes with an increase between \$0.13 and \$0.18 larger. The interval does not contain 0, which agrees with the t test.
+
+F test: The ANOVA table gives F = 185.45. The decision rule is to reject $H_0$ if F \> F(0.95, 1, 48) = 4.0427. Since 185.45 \> 4.0427, we reject null and reach the same conclusion as the t test. The two tests always agree for a single predictor, since $F = t^2 = (13.618)^2 \approx 185.45$.
+
+Coefficient of determination: $R^2$ = 0.7944, so pre-war price explains about 79% of the variation in the increase. The remaining 21% is unexplained by this model.
+
+## Linear Regression of Percent Increase \~ Prewar
+
+```{r}
+# fit the model with percent increase as the response
+fit_pct = lm(pct ~ prewar, data = data)
+summary(fit_pct)
+
+# 95% confidence interval for the slope
+confint(fit_pct, 'prewar', level = 0.95) # (-3.833953, -2.371979)
+
+# t test for the slope
+b1 = coef(summary(fit_pct))['prewar', 'Estimate']
+se = coef(summary(fit_pct))['prewar', 'Std. Error']
+df = df.residual(fit_pct) # 48
+t_stat = (b1 - 0) / se # test statistic
+t_crit = qt(0.975, df = df) # critical value for a two-sided test, alpha = 0.05
+p_val = 2 * pt(abs(t_stat), df = df, lower.tail = FALSE) # two-sided p value
+
+t_stat # -8.535
+t_crit # 2.010635
+p_val # 3.465e-11
+
+# anova table and critical value for the f test
+anova(fit_pct)
+qf(0.95, 1, 48) # 4.042652
+```
+
+Regression function: The estimated regression function is $\hat{Y} = 36.1846 - 3.1030X$, where X is the pre-war price and Y is the percent increase. Each additional dollar of pre-war price is associated with a percent increase about 3.10 percentage points lower.
+
+t test for the slope: We test $H_0: \beta_1 = 0$ against $H_a: \beta_1 \neq 0$ at $\alpha = 0.05$. The decision rule is to reject $H_0$ if \|t\| \> t(0.975, 48) = 2.0106. The test statistic is t = -8.535 with a p-value of 3.46e-11. Since \|t\| = 8.535 \> 2.0106 and the p-value is less than 0.05, we reject null. There is strong evidence of a negative linear relationship between pre-war price and the percent increase.
+
+Confidence interval for the slope: By hand, the 95% confidence interval is -3.1030 $\pm$ (2.0106 × 0.3636) = (-3.8340, -2.3720). We are 95% confident that each additional dollar of pre-war price goes with a percent increase between 2.37 and 3.83 percentage points lower. The interval does not contain 0, which agrees with the t test.
+
+F test: The ANOVA table gives F = 72.85. The decision rule is to reject $H_0$ if F \> F(0.95, 1, 48) = 4.0427. Since 72.85 \> 4.0427, we reject null and reach the same conclusion as the t test, since $(-8.535)^2$ = 72.85.
+
+Coefficient of determination: $R^2$ = 0.6028, so pre-war price explains about 60% of the variation in the percent increase. This is lower than the 79% in the dollar model.
+
+Comparing the two models: The two slopes have opposite signs. States that were more expensive before the war had larger increases in dollars but smaller increases in percent. The dollar model explains why: the increase is about a flat \$0.34 plus 15% of the pre-war price, and that flat amount is a larger share of a cheap state’s price than of an expensive state’s price.
+
+## ANOVA + Brown-Forsythe + Tukey
+
+```{r}
+# mean increase by region
+aggregate(increase ~ region, data = data, FUN = mean)
+
+# single factor anova of the increase by region
+fit_aov = aov(increase ~ region, data = data)
+summary(fit_aov)
+
+# critical value for the f test
+qf(0.95, 3, 46) # 2.806845
+
+# brown-forsythe test for equal variance across regions
+car::leveneTest(increase ~ region, data = data, center = median)
+
+# tukey comparisons between pairs of regions
+TukeyHSD(fit_aov)
+```
+
+Region means: The mean increase is \$0.76 in the Midwest, \$0.77 in the South, \$0.82 in the Northeast, and \$0.87 in the West.
+
+F test for equality of region means: We test $H_0: \mu_1 = \mu_2 = \mu_3 = \mu_4$ against $H_a$: not all $\mu_i$ are equal, at $\alpha = 0.05$. The decision rule is to reject null if F \> F(0.95; 3, 46) = 2.8068. The test statistic is F = 9.265 with a p-value of 6.63e-05. Since 9.265 \> 2.8068 and the p-value is less than 0.05, we reject null. There is strong evidence that the mean increase is not the same in all four regions.
+
+Brown-Forsythe test for equal variance: We test $H_0$: the error variance is the same in all four regions against $H_a$: the error variance is not the same. The test statistic is 5.4465 with a p-value of 0.0027. Since the p-value is less than 0.05, we reject null. The spread of the increase differs by region, so the equal variance assumption of the ANOVA is not met. So the F test above should be read with caution.
+
+Tukey comparisons: At a 95% family confidence level, two pairs of regions differ. The West is higher than the Midwest by \$0.11 (interval \$0.05 to \$0.17, p = 0.0001) and higher than the South by \$0.10 (interval \$0.04 to \$0.16, p = 0.0005). The other four intervals contain 0, so those pairs are not significantly different. The Northeast does not differ significantly from any other region. These intervals also rely on equal variance, so they carry the same caution.
+
+The Tukey results are supplementary because equal variances were rejected.
+
+## Welch’s F test
+
+```{r}
+# f test that does not assume equal variance
+oneway.test(increase ~ region, data = data, var.equal = FALSE)
+```
+
+Because the equal variance assumption was not met, we repeated the test with Welch’s F test, which does not assume equal variance. It gives F = 9.409 with a p-value of 0.0003. Since the p-value is less than 0.05, we again reject null. The conclusion that the regions differ does not depend on the equal variance assumption.
+
+## Pairwise Welch comparisons
+
+```{r}
+pairwise.t.test(data$increase, data$region,
+                pool.sd = FALSE, p.adjust.method = "holm")
+```
+
+Welch's ANOVA is our primary regional test because the Brown-Forsythe test rejected equal variances. Its p-value is 0.0002817. The Holm-adjusted Welch comparisons identify four significant pairs: Midwest–Northeast, Midwest–West, Northeast–South, and South–West. The other two pairs are not significant at 0.05.
+
+## Multiple regression and model selection
+
+```{r}
+models <- list(
+  Baseline = fit,
+  Region = lm(increase ~ prewar + region, data = data),
+  Trend = lm(increase ~ prewar + pre_trend, data = data),
+  Extended = lm(increase ~ prewar + pre_trend + region + coastal, data = data),
+  Full = lm(increase ~ prewar + pre_trend + region + coastal + log_density, data = data),
+  Interaction = lm(increase ~ prewar * region, data = data)
+)
+comparison <- data.frame(
+  Model = names(models),
+  R2 = sapply(models, function(m) summary(m)$r.squared),
+  Adjusted_R2 = sapply(models, function(m) summary(m)$adj.r.squared),
+  AIC = sapply(models, AIC), BIC = sapply(models, BIC))
+knitr::kable(comparison, digits = 4, row.names = FALSE)
+anova(models$Baseline, models$Trend)
+anova(models$Trend, models$Extended)
+anova(models$Extended, models$Full)
+```
+
+Adding pre-war trend improves the baseline model (partial F = 17.396, p = 0.0001296). Adding region and coastal status to the trend model is not significant (p = 0.1702), and adding log density is not significant (p = 0.3087).
+
+```{r}
+set.seed(1)
+folds <- sample(rep(1:5, length.out = nrow(data)))
+cv_model <- function(model) {
+  predictions <- rep(NA_real_, nrow(data))
+  for (fold in 1:5) {
+    fit_cv <- lm(formula(model), data = data[folds != fold, ])
+    predictions[folds == fold] <- predict(fit_cv, data[folds == fold, ])
+  }
+  errors <- data$increase - predictions
+  c(RMSE = sqrt(mean(errors^2)), MAE = mean(abs(errors)))
+}
+knitr::kable(t(sapply(models, cv_model)), digits = 6)
+```
+
+The trend model has the lowest AIC and BIC and the lowest cross-validation MAE (\$0.01944). Its RMSE (\$0.02861) is close to that of the extended model (\$0.02823). We select the trend model because it uses only two predictors and has similar validation performance. The same folds were used for all models; these results are for model comparison, not independent external validation.
+
+## Selected model and robust inference
+
+```{r}
+final_model <- models$Trend
+summary(final_model)
+robust <- function(m) sandwich::vcovHC(m, type = "HC3")
+lmtest::coeftest(fit, vcov. = robust(fit))
+lmtest::coeftest(fit_pct, vcov. = robust(fit_pct))
+lmtest::coeftest(final_model, vcov. = robust(final_model))
+lmtest::coefci(final_model, vcov. = robust(final_model))
+car::linearHypothesis(final_model, "pre_trend = 0", vcov. = robust(final_model), test = "F")
+car::linearHypothesis(models$Extended,
+  c("regionNortheast = 0", "regionSouth = 0", "regionWest = 0", "coastalyes = 0"),
+  vcov. = robust(models$Extended), test = "F")
+```
+
+The estimated model is $\hat Y = 0.271419 + 0.210821X_1 - 0.288586X_2$, where $X_1$ is the February 27 price and $X_2$ is the price change from January 8 to February 27. Holding the trend constant, a \$1 higher pre-war price is associated with a \$0.2108 larger increase. Holding pre-war price constant, a \$0.10 larger pre-war trend is associated with a \$0.0289 smaller increase. Both slopes are significant using HC3 standard errors. The model explains 84.99% of the observed variation. The negative conditional trend coefficient differs from its positive marginal correlation; the predictors share a price measurement and are correlated. The robust joint test for region and coastal status gives p = 0.5720.
+
+## Regional adjustment and interaction
+
+```{r}
+anova(models$Baseline, models$Region)
+anova(models$Region, models$Interaction)
+car::linearHypothesis(models$Region,
+  c("regionNortheast = 0", "regionSouth = 0", "regionWest = 0"),
+  vcov. = robust(models$Region), test = "F")
+car::linearHypothesis(models$Interaction,
+  c("prewar:regionNortheast = 0", "prewar:regionSouth = 0", "prewar:regionWest = 0"),
+  vcov. = robust(models$Interaction), test = "F")
+```
+
+The additive regional effect is not significant after controlling for pre-war price (robust p = 0.4306). However, the interaction test is significant with HC3 (p = 0.006636), while the conventional partial F-test is not (p = 0.1946). This suggests possible differences in slopes across regions, but the result depends on the inference method. The interaction model does not include pre-war trend and has weaker cross-validation performance, so we report it as a secondary analysis.
+
+## Diagnostics and sensitivity
+
+```{r}
+shapiro.test(residuals(final_model))
+lmtest::bptest(final_model)
+car::vif(final_model)
+lmtest::resettest(final_model)
+par(mfrow = c(2, 2))
+plot(final_model)
+par(mfrow = c(1, 1))
+```
+
+The Q-Q plot shows departures at the tails, and Shapiro-Wilk rejects normality (p = 0.0008287). Breusch-Pagan (p = 0.3356) and RESET (p = 0.4536) do not detect significant violations. Both VIFs are 3.0323, suggesting moderate but not severe multicollinearity. We use HC3 standard errors as a precaution against unequal variance; they do not correct nonnormality or spatial dependence.
+
+```{r}
+for (m in list(fit, final_model)) {
+  influential <- cooks.distance(m) > 4 / nrow(data)
+  print(data$state[influential])
+  sensitivity <- lm(formula(m), data = data[!influential, ])
+  print(cbind(Original = coef(m), Sensitivity = coef(sensitivity)))
+}
+```
+
+For the trend model, California, Washington, Minnesota and Kentucky exceed the Cook's distance screening threshold of 0.08. Removing them changes the pre-war slope from 0.2108 to 0.2193 and the trend slope from -0.2886 to -0.3307. Both directions remain unchanged, although the trend slope is somewhat sensitive. We keep all 50 states because influence alone is not evidence of an error.
+
+## Regional classification sensitivity
+
+```{r}
+standard <- data
+standard$region <- as.character(state.region[match(data$state, state.name)])
+standard$region[standard$region == "North Central"] <- "Midwest"
+standard$region <- factor(standard$region)
+data.frame(
+  State = data$state,
+  Original = data$region,
+  Standard = standard$region
+)[as.character(data$region) !=
+    as.character(standard$region), ]
+oneway.test(increase ~ region, data = standard)
+standard_model <- lm(increase ~ prewar + region, data = standard)
+car::linearHypothesis(standard_model,
+  c("regionNortheast = 0", "regionSouth = 0", "regionWest = 0"),
+  vcov. = robust(standard_model), test = "F")
+```
+
+The source classifies Maryland and Delaware as Northeast rather than South. Using standard regions gives a Welch p-value of 0.0001586 and a robust adjusted regional p-value of 0.3888. The main conclusions are unchanged. We retain the original classification for consistency with the source and document this sensitivity check.
+
+## Conclusion and limitations for Groups 1 and 2
+
+Gasoline prices increased in all 50 states between February 27 and March 19, 2026, with an average increase of \$0.81 per gallon. States with higher pre-war gasoline prices experienced larger dollar increases but smaller percentage increases.
+
+The ANOVA showed significant differences in average gasoline price increases across regions. However, after controlling for pre-war prices, the additive regional effect was no longer statistically significant. The robust interaction test suggests that the relationship between pre-war prices and price increases may differ across regions.
+
+Among the six regression models considered, we selected the model containing pre-war price and pre-war trend. This model explains approximately 85% of the observed variation and provides a good balance between model simplicity and predictive performance. Its five-fold cross-validation RMSE was approximately \$0.029 per gallon.
+
+The sensitivity analysis showed that removing influential states changed the estimated coefficients but did not change their directions. Finally, the oil price analysis showed higher observed prices during the conflict period. However, because the data are observational, these results describe associations and do not establish causation.
+
+This study has some limitations. The oil dataset contains only 24 observations, and the dates are not equally spaced. Population density is based on data from 1975, which may not reflect current population densities. The percentage increase also depends directly on the pre-war price. Finally, the states may not be completely independent because neighboring states can share similar economic conditions. These limitations should be considered when interpreting the results.
+
+## References
+
+-   Shah, A. T. (2026). *Iran War Oil Shock 2026: Brent and Gas Tracker*. Kaggle. <https://www.kaggle.com/datasets/alitaqishah/iran-war-oil-shock-2026-brent-and-gas-tracker>
+
+-   American Automobile Association (AAA). (2026). *State Gas Price Averages*. <https://gasprices.aaa.com/>
+
+-   R Core Team. *U.S. State Facts and Figures (state.x77)*. R datasets package. <https://stat.ethz.ch/R-manual/R-devel/library/datasets/html/state.html>
+
+### Data Source Note
+
+The oil prices, gasoline prices, and conflict events used in this project were obtained from the Kaggle dataset. The gasoline price records in the dataset are attributed to AAA. Population density was calculated using population and land area information from the `state.x77` dataset available in R. Since the population figures are from 1975, they may not accurately represent current population densities.

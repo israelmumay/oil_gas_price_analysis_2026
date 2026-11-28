@@ -341,3 +341,13 @@ cat("Average percentage change: ", round(mean(states$pct), 2), "%\n")
 cat("Visualizations generated:  ", length(plots), "\n")
 cat("---------------------------------------------\n")
 cat("Exploratory data analysis completed successfully.\n")
+
+# Additional descriptive summaries from the audit
+print(aggregate(cbind(increase, pct) ~ region, states, mean))
+print(aggregate(cbind(increase, pct) ~ coastal, states, mean))
+print(head(states[order(-states$pct), c("state", "region", "pct")], 5))
+oil$period <- ifelse(oil$date < as.Date("2026-02-28"), "Pre-War", "Conflict")
+print(aggregate(cbind(brent_usd_barrel, wti_usd_barrel, dubai_usd_barrel) ~ period,
+                oil, function(x) c(n = length(x), mean = mean(x), sd = sd(x))))
+events <- read.csv("data/cleaned/events.csv")
+print(events)

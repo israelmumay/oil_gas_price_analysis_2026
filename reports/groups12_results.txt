@@ -1,0 +1,1087 @@
+
+RUNNING: 01_data_cleaning.R
+
+Data Cleaning Summary
+----------------------------------------
+Number of states:           50
+Number of oil observations: 24
+Number of event records:    11
+Missing state values:       0
+Duplicate states:           0
+Duplicate oil dates:        0
+----------------------------------------
+Data cleaning completed successfully.
+      state  original standard
+35 Maryland Northeast    South
+36 Delaware Northeast    South
+
+   1    2    3    4    6 <NA>
+  17    1    2    2    1    1
+ [1] date                 event_title          description          war_day
+ [5] category             brent_price_that_day source               change
+ [9] gap                  brent_usd_barrel
+<0 rows> (or 0-length row.names)
+
+RUNNING: 02_exploratory_analysis.R
+     prewar         increase           pct          pre_trend       log_density
+ Min.   :2.540   Min.   :0.6800   Min.   :22.35   Min.   :0.2400   Min.   :-0.4395
+ 1st Qu.:2.760   1st Qu.:0.7600   1st Qu.:25.99   1st Qu.:0.3000   1st Qu.: 3.2306
+ Median :2.900   Median :0.8000   Median :27.33   Median :0.3000   Median : 4.2904
+ Mean   :3.030   Mean   :0.8062   Mean   :26.78   Mean   :0.3604   Mean   : 4.1088
+ 3rd Qu.:3.135   3rd Qu.:0.8400   3rd Qu.:27.84   3rd Qu.:0.3800   3rd Qu.: 4.9711
+ Max.   :4.520   Max.   :1.0500   Max.   :30.99   Max.   :0.7600   Max.   : 6.8824
+     region  increase.n increase.mean increase.sd
+1   Midwest 12.00000000    0.76166667  0.04764134
+2 Northeast 11.00000000    0.81818182  0.01887760
+3     South 14.00000000    0.77428571  0.04032832
+4      West 13.00000000    0.87153846  0.09476692
+            state    region increase      pct
+3          Hawaii      West     1.05 26.11940
+1      California      West     1.01 22.34513
+2      Washington      West     0.97 23.20574
+5          Nevada      West     0.94 25.26882
+4          Oregon      West     0.88 23.03665
+43       Kentucky     South     0.88 30.98592
+7          Alaska      West     0.86 23.75691
+8            Utah      West     0.86 28.47682
+12       Colorado      West     0.84 28.18792
+14       Illinois   Midwest     0.84 27.27273
+26       New York Northeast     0.84 24.85207
+27  Massachusetts Northeast     0.84 25.60976
+28    Connecticut Northeast     0.84 25.92593
+30   Pennsylvania Northeast     0.84 26.92308
+9           Idaho      West     0.82 26.28205
+15       Michigan   Midwest     0.82 27.70270
+29     New Jersey Northeast     0.82 25.94937
+33  New Hampshire Northeast     0.82 26.79739
+10        Montana      West     0.80 27.39726
+18      Wisconsin   Midwest     0.80 27.77778
+31   Rhode Island Northeast     0.80 25.47771
+34          Maine Northeast     0.80 26.31579
+35       Maryland Northeast     0.80 26.49007
+36       Delaware Northeast     0.80 27.21088
+37       Virginia     South     0.80 27.39726
+41        Florida     South     0.80 27.77778
+44  West Virginia     South     0.80 27.77778
+32        Vermont Northeast     0.80 24.84472
+16           Ohio   Midwest     0.78 27.46479
+17        Indiana   Midwest     0.78 28.26087
+38 North Carolina     South     0.78 27.46479
+40        Georgia     South     0.78 28.05755
+6         Arizona      West     0.78 24.07407
+11        Wyoming      West     0.76 26.95035
+13     New Mexico      West     0.76 26.38889
+22   North Dakota   Midwest     0.76 26.95035
+23   South Dakota   Midwest     0.76 27.53623
+24       Nebraska   Midwest     0.76 28.35821
+39 South Carolina     South     0.76 27.53623
+42      Tennessee     South     0.76 27.94118
+45        Alabama     South     0.76 28.35821
+47       Arkansas     South     0.76 28.57143
+48      Louisiana     South     0.76 28.14815
+49          Texas     South     0.76 27.94118
+21       Missouri   Midwest     0.74 27.61194
+46    Mississippi     South     0.74 28.03030
+20           Iowa   Midwest     0.73 27.86260
+50       Oklahoma     South     0.70 27.55906
+25         Kansas   Midwest     0.69 26.95312
+19      Minnesota   Midwest     0.68 23.94366
+            increase prewar pre_trend log_density
+increase      1.0000 0.8913    0.5943      0.0877
+prewar        0.8913 1.0000    0.8187      0.0200
+pre_trend     0.5943 0.8187    1.0000      0.0063
+log_density   0.0877 0.0200    0.0063      1.0000
+         date change gap event
+7  2026-02-28   6.40   1  TRUE
+8  2026-03-01   4.70   1 FALSE
+13 2026-03-07   4.40   2  TRUE
+22 2026-03-18   4.05   1  TRUE
+21 2026-03-17   3.80   1 FALSE
+10 2026-03-03   3.60   1 FALSE
+9  2026-03-02   3.40   1  TRUE
+14 2026-03-10   3.00   3  TRUE
+3  2026-02-14   1.90   4 FALSE
+2  2026-02-10   1.90   1 FALSE
+17 2026-03-13   1.80   1  TRUE
+24 2026-03-20   1.65   1  TRUE
+4  2026-02-18   1.60   4 FALSE
+6  2026-02-27   1.60   3 FALSE
+16 2026-03-12   1.20   1 FALSE
+11 2026-03-04   0.78   1  TRUE
+20 2026-03-16   0.60   1 FALSE
+12 2026-03-05   0.42   1 FALSE
+15 2026-03-11   0.40   1 FALSE
+23 2026-03-19   0.00   1  TRUE
+5  2026-02-24  -1.30   6 FALSE
+18 2026-03-14  -1.40   1 FALSE
+19 2026-03-15  -1.60   1  TRUE
+1  2026-02-09     NA  NA FALSE
+ brent_usd_barrel wti_usd_barrel  dubai_usd_barrel observed_return
+ Min.   : 67.40   Min.   :62.10   Min.   : 66.80   Min.   :-1.7857
+ 1st Qu.: 77.90   1st Qu.:71.47   1st Qu.: 76.85   1st Qu.: 0.5277
+ Median : 94.60   Median :87.85   Median : 93.70   Median : 2.2378
+ Mean   : 91.19   Mean   :83.62   Mean   : 90.55   Mean   : 2.1936
+ 3rd Qu.:101.50   3rd Qu.:93.88   3rd Qu.:100.65   3rd Qu.: 3.8209
+ Max.   :110.30   Max.   :96.20   Max.   :112.10   Max.   : 8.7551
+                                                   NA's   :1
+   Pre-War War Period
+  2.247191   1.673429
+
+Exploratory Data Analysis Summary
+---------------------------------------------
+Number of states:           50
+Number of oil observations: 24
+Average price increase:    $ 0.81
+Average percentage change:  26.78 %
+Visualizations generated:   6
+---------------------------------------------
+Exploratory data analysis completed successfully.
+     region  increase      pct
+1   Midwest 0.7616667 27.30792
+2 Northeast 0.8181818 26.03607
+3     South 0.7742857 28.11049
+4      West 0.8715385 25.49923
+  coastal  increase      pct
+1      no 0.7866667 27.23423
+2     yes 0.8291304 26.25236
+      state  region      pct
+43 Kentucky   South 30.98592
+47 Arkansas   South 28.57143
+8      Utah    West 28.47682
+24 Nebraska Midwest 28.35821
+45  Alabama   South 28.35821
+    period brent_usd_barrel.n brent_usd_barrel.mean brent_usd_barrel.sd wti_usd_barrel.n
+1 Conflict          18.000000             97.960000            8.580404        18.000000
+2  Pre-War           6.000000             70.883333            2.177537         6.000000
+  wti_usd_barrel.mean wti_usd_barrel.sd dubai_usd_barrel.n dubai_usd_barrel.mean dubai_usd_barrel.sd
+1           89.633333          7.120228          18.000000             97.422222            8.964935
+2           65.583333          2.130180           6.000000             69.950000            2.051097
+         date             event_title
+1  2026-02-28              War Begins
+2  2026-03-02      Qatar LNG Shutdown
+3  2026-03-04   IEA Emergency Release
+4  2026-03-07      Dubai Crude Record
+5  2026-03-10      Brent Crosses $100
+6  2026-03-13 Sanctioned Oil Released
+7  2026-03-15     Kharg Island Strike
+8  2026-03-18       South Pars Attack
+9  2026-03-18   Qatar 17% LNG Offline
+10 2026-03-19         Brent Hits $119
+11 2026-03-20   US Weighs Iranian Oil
+                                                                                                                         description
+1          US-Israel launch joint airstrikes on Iran nuclear sites. Supreme Leader Khamenei killed. Strait of Hormuz closed by IRGC.
+2                  Iran drone attacks on Ras Laffan force Qatar to suspend LNG production. Qatar = world's 2nd largest LNG exporter.
+3                                               IEA announces 400M barrel release — largest in history. US commits 172M SPR barrels.
+4                                    Dubai crude hits all-time high above $150/barrel. WTI-Dubai spread widens to unprecedented $50+
+5                                                         Brent above $100 for first time since 2022. Gas at highest since mid-2024.
+6                                                              US allows sanctioned Iranian tanker crude into market to ease prices.
+7                       Trump orders strikes on Iranian military assets at Kharg Island — 90% of Iran's oil exports ship from there.
+8  Israel strikes South Pars — Iran's largest gas field. Iran retaliates: hits Saudi Aramco Samref refinery + UAE Al Hosn gas field.
+9                  Iranian missile strikes take out 17% of Qatar's LNG export capacity. Ras Laffan blaze controlled — no casualties.
+10    Brent briefly touches $119 intraday high. Israel says helping reopen Hormuz. Netanyahu: 'War may end sooner than people think'
+11    US Treasury Sec Bessent: US may free sanctioned Iranian tanker oil. Hegseth warns 'largest strike package yet'. Brent $110.30.
+   war_day              category brent_price_that_day                                         source change
+1        1        Conflict Start                79.50 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   6.40
+2        3 Energy Infrastructure                87.60 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   3.40
+3        5       Policy Response                91.98 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   0.78
+4        8          Price Record                96.80 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   4.40
+5       11       Price Milestone                99.80 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   3.00
+6       14       Policy Response               103.20 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   1.80
+7       16   Military Escalation               100.20 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified  -1.60
+8       19 Energy Infrastructure               108.65 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   4.05
+9       19 Energy Infrastructure               108.65 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   4.05
+10      20          Price Record               108.65 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   0.00
+11      21       Policy Response               110.30 CNBC/Fortune/Reuters/Euronews/NPR/IEA verified   1.65
+   gap brent_usd_barrel
+1    1            79.50
+2    1            87.60
+3    1            91.98
+4    2            96.80
+5    3            99.80
+6    1           103.20
+7    1           100.20
+8    1           108.65
+9    1           108.65
+10   1           108.65
+11   1           110.30
+
+RUNNING: 03_regression_anova.R
+
+============================================================
+Simple Linear Regression
+============================================================
+
+Regression Summary
+
+Call:
+lm(formula = increase ~ prewar, data = states)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.097110 -0.013892  0.001263  0.011718  0.102890
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  0.34229    0.03438   9.955 2.93e-13 ***
+prewar       0.15311    0.01124  13.618  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.03289 on 48 degrees of freedom
+Multiple R-squared:  0.7944,	Adjusted R-squared:  0.7901
+F-statistic: 185.5 on 1 and 48 DF,  p-value: < 2.2e-16
+
+
+95% Confidence Intervals
+                2.5 %    97.5 %
+(Intercept) 0.2731579 0.4114165
+prewar      0.1305013 0.1757117
+
+Robust Coefficient Tests (HC3)
+
+t test of coefficients:
+
+            Estimate Std. Error t value  Pr(>|t|)
+(Intercept) 0.342287   0.046713  7.3275 2.318e-09 ***
+prewar      0.153107   0.015914  9.6206 8.847e-13 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Robust 95% Confidence Intervals (HC3)
+                2.5 %    97.5 %
+(Intercept) 0.2483649 0.4362096
+prewar      0.1211084 0.1851047
+
+============================================================
+Region-Adjusted Model
+============================================================
+
+Regression Summary
+
+Call:
+lm(formula = increase ~ prewar + region, data = states)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.089546 -0.015176 -0.000438  0.013675  0.092206
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)
+(Intercept)     0.3219774  0.0452510   7.115 6.87e-09 ***
+prewar          0.1575947  0.0158536   9.941 6.26e-13 ***
+regionNortheast 0.0004974  0.0149167   0.033    0.974
+regionSouth     0.0182474  0.0130286   1.401    0.168
+regionWest      0.0057381  0.0168872   0.340    0.736
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.03309 on 45 degrees of freedom
+Multiple R-squared:  0.805,	Adjusted R-squared:  0.7876
+F-statistic: 46.43 on 4 and 45 DF,  p-value: 2.038e-15
+
+
+95% Confidence Intervals
+                       2.5 %     97.5 %
+(Intercept)      0.230837166 0.41311763
+prewar           0.125663959 0.18952548
+regionNortheast -0.029546332 0.03054112
+regionSouth     -0.007993617 0.04448848
+regionWest      -0.028274518 0.03975063
+
+Robust Coefficient Tests (HC3)
+
+t test of coefficients:
+
+                  Estimate Std. Error t value  Pr(>|t|)
+(Intercept)     0.32197740 0.06086460  5.2901 3.482e-06 ***
+prewar          0.15759472 0.02172633  7.2536 4.292e-09 ***
+regionNortheast 0.00049739 0.01421676  0.0350    0.9722
+regionSouth     0.01824743 0.01314912  1.3877    0.1721
+regionWest      0.00573805 0.01930120  0.2973    0.7676
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Robust 95% Confidence Intervals (HC3)
+                       2.5 %     97.5 %
+(Intercept)      0.199389810 0.44456499
+prewar           0.113835638 0.20135380
+regionNortheast -0.028136626 0.02913141
+regionSouth     -0.008236258 0.04473112
+regionWest      -0.033136568 0.04461267
+
+============================================================
+Pre-War Trend Model
+============================================================
+
+Regression Summary
+
+Call:
+lm(formula = increase ~ prewar + pre_trend, data = states)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.074716 -0.012535  0.000412  0.012150  0.113741
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  0.27142    0.03420   7.935 3.18e-10 ***
+prewar       0.21082    0.01690  12.473  < 2e-16 ***
+pre_trend   -0.28859    0.06919  -4.171  0.00013 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0284 on 47 degrees of freedom
+Multiple R-squared:  0.8499,	Adjusted R-squared:  0.8435
+F-statistic: 133.1 on 2 and 47 DF,  p-value: < 2.2e-16
+
+
+95% Confidence Intervals
+                 2.5 %     97.5 %
+(Intercept)  0.2026109  0.3402264
+prewar       0.1768172  0.2448249
+pre_trend   -0.4277826 -0.1493896
+
+Robust Coefficient Tests (HC3)
+
+t test of coefficients:
+
+             Estimate Std. Error t value  Pr(>|t|)
+(Intercept)  0.271419   0.036501  7.4359  1.79e-09 ***
+prewar       0.210821   0.015950 13.2178 < 2.2e-16 ***
+pre_trend   -0.288586   0.077268 -3.7349 0.0005073 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Robust 95% Confidence Intervals (HC3)
+                 2.5 %     97.5 %
+(Intercept)  0.1979878  0.3448495
+prewar       0.1787342  0.2429079
+pre_trend   -0.4440288 -0.1331434
+
+============================================================
+Extended Model
+============================================================
+
+Regression Summary
+
+Call:
+lm(formula = increase ~ prewar + pre_trend + region + coastal,
+    data = states)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.065763 -0.011459  0.001829  0.012625  0.089378
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)
+(Intercept)      0.197022   0.048566   4.057 0.000206 ***
+prewar           0.236623   0.021728  10.890 6.09e-14 ***
+pre_trend       -0.308170   0.069219  -4.452 5.95e-05 ***
+regionNortheast  0.017533   0.014176   1.237 0.222866
+regionSouth      0.032533   0.013291   2.448 0.018533 *
+regionWest      -0.002089   0.014191  -0.147 0.883627
+coastalyes      -0.019886   0.011429  -1.740 0.089009 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0276 on 43 degrees of freedom
+Multiple R-squared:  0.8703,	Adjusted R-squared:  0.8522
+F-statistic: 48.09 on 6 and 43 DF,  p-value: < 2.2e-16
+
+
+95% Confidence Intervals
+                       2.5 %       97.5 %
+(Intercept)      0.099078555  0.294964900
+prewar           0.192804690  0.280440939
+pre_trend       -0.447762920 -0.168577163
+regionNortheast -0.011055149  0.046120627
+regionSouth      0.005729251  0.059336663
+regionWest      -0.030707528  0.026528552
+coastalyes      -0.042933823  0.003161929
+
+Robust Coefficient Tests (HC3)
+
+t test of coefficients:
+
+                  Estimate Std. Error t value  Pr(>|t|)
+(Intercept)      0.1970217  0.0611135  3.2239  0.002416 **
+prewar           0.2366228  0.0233274 10.1436 5.591e-13 ***
+pre_trend       -0.3081700  0.0911589 -3.3806  0.001549 **
+regionNortheast  0.0175327  0.0174979  1.0020  0.321953
+regionSouth      0.0325330  0.0207217  1.5700  0.123746
+regionWest      -0.0020895  0.0157350 -0.1328  0.894977
+coastalyes      -0.0198859  0.0168672 -1.1790  0.244893
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Robust 95% Confidence Intervals (HC3)
+                       2.5 %      97.5 %
+(Intercept)      0.073774702  0.32026875
+prewar           0.189578676  0.28366695
+pre_trend       -0.492009554 -0.12433053
+regionNortheast -0.017755146  0.05282062
+regionSouth     -0.009256288  0.07432220
+regionWest      -0.033822049  0.02964307
+coastalyes      -0.053901944  0.01413005
+
+============================================================
+Full Model
+============================================================
+
+Regression Summary
+
+Call:
+lm(formula = increase ~ prewar + pre_trend + region + coastal +
+    log_density, data = states)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.066634 -0.009382 -0.000406  0.011620  0.088450
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)
+(Intercept)      0.205193   0.049175   4.173 0.000148 ***
+prewar           0.224805   0.024555   9.155 1.46e-11 ***
+pre_trend       -0.286208   0.072378  -3.954 0.000289 ***
+regionNortheast  0.012788   0.014895   0.859 0.395484
+regionSouth      0.031019   0.013362   2.321 0.025189 *
+regionWest       0.009337   0.018001   0.519 0.606685
+coastalyes      -0.020300   0.011427  -1.776 0.082903 .
+log_density      0.004480   0.004348   1.030 0.308681
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.02758 on 42 degrees of freedom
+Multiple R-squared:  0.8735,	Adjusted R-squared:  0.8524
+F-statistic: 41.43 on 7 and 42 DF,  p-value: < 2.2e-16
+
+
+95% Confidence Intervals
+                       2.5 %       97.5 %
+(Intercept)      0.105954250  0.304432217
+prewar           0.175251403  0.274358481
+pre_trend       -0.432272763 -0.140144170
+regionNortheast -0.017271920  0.042847102
+regionSouth      0.004053189  0.057985746
+regionWest      -0.026990683  0.045665681
+coastalyes      -0.043361637  0.002761259
+log_density     -0.004293889  0.013254569
+
+Robust Coefficient Tests (HC3)
+
+t test of coefficients:
+
+                  Estimate Std. Error t value  Pr(>|t|)
+(Intercept)      0.2051932  0.0631119  3.2513  0.002268 **
+prewar           0.2248049  0.0270805  8.3014 2.132e-10 ***
+pre_trend       -0.2862085  0.0933881 -3.0647  0.003798 **
+regionNortheast  0.0127876  0.0187193  0.6831  0.498280
+regionSouth      0.0310195  0.0206491  1.5022  0.140522
+regionWest       0.0093375  0.0198890  0.4695  0.641155
+coastalyes      -0.0203002  0.0164712 -1.2325  0.224629
+log_density      0.0044803  0.0038330  1.1689  0.249042
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Robust 95% Confidence Intervals (HC3)
+                       2.5 %      97.5 %
+(Intercept)      0.077828351  0.33255812
+prewar           0.170154297  0.27945559
+pre_trend       -0.474673236 -0.09774370
+regionNortheast -0.024989467  0.05056465
+regionSouth     -0.010652070  0.07269100
+regionWest      -0.030800186  0.04947518
+coastalyes      -0.053540367  0.01293999
+log_density     -0.003254977  0.01221566
+
+============================================================
+Interaction Model
+============================================================
+
+Regression Summary
+
+Call:
+lm(formula = increase ~ prewar * region, data = states)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.093762 -0.015015 -0.001146  0.009990  0.093264
+
+Coefficients:
+                       Estimate Std. Error t value Pr(>|t|)
+(Intercept)             0.08674    0.18680   0.464 0.644790
+prewar                  0.24191    0.06687   3.618 0.000792 ***
+regionNortheast         0.42411    0.31305   1.355 0.182730
+regionSouth            -0.10997    0.29492  -0.373 0.711124
+regionWest              0.26831    0.19561   1.372 0.177451
+prewar:regionNortheast -0.14420    0.10411  -1.385 0.173357
+prewar:regionSouth      0.04764    0.10643   0.448 0.656705
+prewar:regionWest      -0.09224    0.06890  -1.339 0.187894
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0324 on 42 degrees of freedom
+Multiple R-squared:  0.8254,	Adjusted R-squared:  0.7963
+F-statistic: 28.37 on 7 and 42 DF,  p-value: 5.688e-14
+
+
+95% Confidence Intervals
+                            2.5 %     97.5 %
+(Intercept)            -0.2902405 0.46372714
+prewar                  0.1069579 0.37685815
+regionNortheast        -0.2076428 1.05585889
+regionSouth            -0.7051493 0.48521492
+regionWest             -0.1264463 0.66307294
+prewar:regionNortheast -0.3543140 0.06591038
+prewar:regionSouth     -0.1671432 0.26243166
+prewar:regionWest      -0.2312903 0.04681733
+
+Robust Coefficient Tests (HC3)
+
+t test of coefficients:
+
+                        Estimate Std. Error t value  Pr(>|t|)
+(Intercept)             0.086743   0.118602  0.7314  0.468606
+prewar                  0.241908   0.043682  5.5380 1.829e-06 ***
+regionNortheast         0.424108   0.136038  3.1176  0.003287 **
+regionSouth            -0.109967   0.221598 -0.4962  0.622308
+regionWest              0.268313   0.141032  1.9025  0.063977 .
+prewar:regionNortheast -0.144202   0.048707 -2.9606  0.005032 **
+prewar:regionSouth      0.047644   0.082497  0.5775  0.566665
+prewar:regionWest      -0.092237   0.049486 -1.8639  0.069337 .
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Robust 95% Confidence Intervals (HC3)
+                             2.5 %       97.5 %
+(Intercept)            -0.15260429  0.326090945
+prewar                  0.15375473  0.330061284
+regionNortheast         0.14957174  0.698644294
+regionSouth            -0.55717060  0.337236182
+regionWest             -0.01630021  0.552926829
+prewar:regionNortheast -0.24249690 -0.045906671
+prewar:regionSouth     -0.11884057  0.214129033
+prewar:regionWest      -0.19210317  0.007630164
+
+============================================================
+Percentage Change Model
+============================================================
+
+Regression Summary
+
+Call:
+lm(formula = pct ~ prewar, data = states)
+
+Residuals:
+    Min      1Q  Median      3Q     Max
+-3.4285 -0.4343  0.0927  0.4968  3.6138
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  36.1846     1.1118  32.546  < 2e-16 ***
+prewar       -3.1030     0.3636  -8.535 3.46e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1.064 on 48 degrees of freedom
+Multiple R-squared:  0.6028,	Adjusted R-squared:  0.5945
+F-statistic: 72.85 on 1 and 48 DF,  p-value: 3.465e-11
+
+
+95% Confidence Intervals
+                2.5 %    97.5 %
+(Intercept) 33.949114 38.420002
+prewar      -3.833953 -2.371979
+
+Robust Coefficient Tests (HC3)
+
+t test of coefficients:
+
+            Estimate Std. Error t value  Pr(>|t|)
+(Intercept) 36.18456    1.20335 30.0700 < 2.2e-16 ***
+prewar      -3.10297    0.40388 -7.6828 6.661e-10 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+Robust 95% Confidence Intervals (HC3)
+                2.5 %    97.5 %
+(Intercept) 33.765069 38.604047
+prewar      -3.915029 -2.290903
+
+One-Way ANOVA
+Analysis of Variance Table
+
+Response: increase
+          Df   Sum Sq  Mean Sq F value    Pr(>F)
+region     3 0.095136 0.031712  9.2653 6.626e-05 ***
+Residuals 46 0.157442 0.003423
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Brown-Forsythe Test
+Levene's Test for Homogeneity of Variance (center = median)
+      Df F value   Pr(>F)
+group  3  5.4465 0.002735 **
+      46
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Welch's ANOVA
+
+	One-way analysis of means (not assuming equal variances)
+
+data:  increase and region
+F = 9.4091, num df = 3.000, denom df = 23.646, p-value = 0.0002817
+
+
+Pairwise Welch Tests with Holm Adjustment
+
+	Pairwise comparisons using t tests with non-pooled SD
+
+data:  states$increase and states$region
+
+          Midwest Northeast South
+Northeast 0.0097  -         -
+South     0.4779  0.0097    -
+West      0.0097  0.1372    0.0105
+
+P value adjustment method: holm
+
+Tukey's HSD Test
+  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = increase ~ region, data = states)
+
+$region
+                         diff          lwr        upr     p adj
+Northeast-Midwest  0.05651515 -0.008578248 0.12160855 0.1095887
+South-Midwest      0.01261905 -0.048727769 0.07396586 0.9465447
+West-Midwest       0.10987179  0.047445479 0.17229811 0.0001407
+South-Northeast   -0.04389610 -0.106726478 0.01893427 0.2583702
+West-Northeast     0.05335664 -0.010528166 0.11724145 0.1313544
+West-South         0.09725275  0.037189862 0.15731563 0.0004715
+
+
+Model Comparison: Baseline vs. Region-Adjusted
+Analysis of Variance Table
+
+Model 1: increase ~ prewar
+Model 2: increase ~ prewar + region
+  Res.Df      RSS Df Sum of Sq      F Pr(>F)
+1     48 0.051932
+2     45 0.049264  3 0.0026683 0.8125 0.4937
+
+Model Comparison: Adjusted vs. Interaction
+Analysis of Variance Table
+
+Model 1: increase ~ prewar + region
+Model 2: increase ~ prewar * region
+  Res.Df      RSS Df Sum of Sq    F Pr(>F)
+1     45 0.049264
+2     42 0.044098  3 0.0051658 1.64 0.1946
+
+Regression Model Comparison
+            Model R_Squared Adjusted_R_Squared Residual_SE       AIC       BIC
+1        Baseline    0.7944             0.7901      0.0329 -195.5984 -189.8623
+2 Region-Adjusted    0.8050             0.7876      0.0331 -192.2358 -180.7636
+3   Pre-War Trend    0.8499             0.8435      0.0284 -209.3433 -201.6952
+4        Extended    0.8703             0.8522      0.0276 -208.6373 -193.3411
+5            Full    0.8735             0.8524      0.0276 -207.8857 -190.6775
+6     Interaction    0.8254             0.7963      0.0324 -191.7746 -174.5664
+
+Variance Inflation Factors - Full Model
+                GVIF Df GVIF^(1/(2*Df))
+prewar      6.784022  1        2.604615
+pre_trend   3.517441  1        1.875484
+region      8.697887  3        1.434065
+coastal     2.132010  1        1.460141
+log_density 2.729107  1        1.652001
+
+Shapiro-Wilk Normality Test
+
+	Shapiro-Wilk normality test
+
+data:  residuals(base)
+W = 0.92271, p-value = 0.002959
+
+
+Breusch-Pagan Test
+
+	studentized Breusch-Pagan test
+
+data:  base
+BP = 1.3594, df = 1, p-value = 0.2436
+
+
+Cook's Distance Ranking
+            state    region      cooks_d
+3          Hawaii      West 7.058010e-01
+1      California      West 1.471589e-01
+43       Kentucky     South 1.244372e-01
+4          Oregon      West 1.160382e-01
+19      Minnesota   Midwest 1.108480e-01
+25         Kansas   Midwest 4.550662e-02
+7          Alaska      West 4.241032e-02
+6         Arizona      West 4.164827e-02
+5          Nevada      West 3.242577e-02
+8            Utah      West 2.948200e-02
+50       Oklahoma     South 2.382009e-02
+2      Washington      West 1.782522e-02
+12       Colorado      West 1.679078e-02
+32        Vermont Northeast 1.463899e-02
+14       Illinois   Midwest 6.678467e-03
+26       New York Northeast 6.657611e-03
+15       Michigan   Midwest 5.957578e-03
+13     New Mexico      West 5.909708e-03
+31   Rhode Island Northeast 5.486548e-03
+30   Pennsylvania Northeast 4.047790e-03
+20           Iowa   Midwest 3.580533e-03
+17        Indiana   Midwest 3.200298e-03
+18      Wisconsin   Midwest 3.077337e-03
+41        Florida     South 3.077337e-03
+44  West Virginia     South 3.077337e-03
+21       Missouri   Midwest 2.704975e-03
+11        Wyoming      West 2.413715e-03
+22   North Dakota   Midwest 2.413715e-03
+47       Arkansas     South 1.954488e-03
+40        Georgia     South 1.944937e-03
+10        Montana      West 1.170288e-03
+37       Virginia     South 1.170288e-03
+24       Nebraska   Midwest 9.279309e-04
+45        Alabama     South 9.279309e-04
+33  New Hampshire Northeast 8.202442e-04
+46    Mississippi     South 7.936848e-04
+36       Delaware Northeast 5.801804e-04
+34          Maine Northeast 5.755692e-04
+29     New Jersey Northeast 3.955504e-04
+23   South Dakota   Midwest 3.299920e-04
+39 South Carolina     South 3.299920e-04
+48      Louisiana     South 3.023636e-04
+27  Massachusetts Northeast 2.672494e-04
+35       Maryland Northeast 2.099203e-04
+16           Ohio   Midwest 9.819056e-05
+38 North Carolina     South 9.819056e-05
+28    Connecticut Northeast 3.320466e-05
+42      Tennessee     South 2.452969e-05
+49          Texas     South 2.452969e-05
+9           Idaho      West 4.207950e-09
+
+Potentially Influential States
+        state  region increase prewar   cooks_d
+1  California    West     1.01   4.52 0.1471589
+3      Hawaii    West     1.05   4.02 0.7058010
+4      Oregon    West     0.88   3.82 0.1160382
+19  Minnesota Midwest     0.68   2.84 0.1108480
+43   Kentucky   South     0.88   2.84 0.1244372
+
+Sensitivity Analysis
+
+Call:
+lm(formula = increase ~ prewar, data = states, subset = cooks_d <=
+    cooks_threshold)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.056636 -0.013198  0.001244  0.011043  0.056143
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  0.35389    0.03078   11.50 1.06e-14 ***
+prewar       0.14900    0.01032   14.44  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.02184 on 43 degrees of freedom
+Multiple R-squared:  0.829,	Adjusted R-squared:  0.825
+F-statistic: 208.5 on 1 and 43 DF,  p-value: < 2.2e-16
+
+
+Sensitivity Model Comparison
+              Model Observations Intercept Prewar_Coefficient R_Squared Adjusted_R_Squared
+1    Original Model           50    0.3423             0.1531    0.7944             0.7901
+2 Sensitivity Model           45    0.3539             0.1490    0.8290             0.8250
+
+Regression and ANOVA Summary
+--------------------------------------------------
+Number of states:           50
+Regression models fitted:   7
+Baseline R-squared:         0.7944
+Baseline Adjusted R-squared: 0.7901
+Welch ANOVA p-value:        0.000282
+Influential observations:   5
+--------------------------------------------------
+Regression and ANOVA completed successfully.
+
+Call:
+lm(formula = increase ~ prewar + pre_trend, data = states)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.074716 -0.012535  0.000412  0.012150  0.113741
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  0.27142    0.03420   7.935 3.18e-10 ***
+prewar       0.21082    0.01690  12.473  < 2e-16 ***
+pre_trend   -0.28859    0.06919  -4.171  0.00013 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0284 on 47 degrees of freedom
+Multiple R-squared:  0.8499,	Adjusted R-squared:  0.8435
+F-statistic: 133.1 on 2 and 47 DF,  p-value: < 2.2e-16
+
+
+t test of coefficients:
+
+             Estimate Std. Error t value  Pr(>|t|)
+(Intercept)  0.271419   0.036501  7.4359  1.79e-09 ***
+prewar       0.210821   0.015950 13.2178 < 2.2e-16 ***
+pre_trend   -0.288586   0.077268 -3.7349 0.0005073 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+                 2.5 %     97.5 %
+(Intercept)  0.1979878  0.3448495
+prewar       0.1787342  0.2429079
+pre_trend   -0.4440288 -0.1331434
+Analysis of Variance Table
+
+Model 1: increase ~ prewar
+Model 2: increase ~ prewar + pre_trend
+  Res.Df      RSS Df Sum of Sq      F    Pr(>F)
+1     48 0.051932
+2     47 0.037903  1  0.014029 17.396 0.0001296 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Variance Table
+
+Model 1: increase ~ prewar + pre_trend
+Model 2: increase ~ prewar + pre_trend + region + coastal
+  Res.Df      RSS Df Sum of Sq      F Pr(>F)
+1     47 0.037903
+2     43 0.032758  4 0.0051449 1.6884 0.1702
+Analysis of Variance Table
+
+Model 1: increase ~ prewar + pre_trend + region + coastal
+Model 2: increase ~ prewar + pre_trend + region + coastal + log_density
+  Res.Df      RSS Df  Sum of Sq      F Pr(>F)
+1     43 0.032758
+2     42 0.031950  1 0.00080781 1.0619 0.3087
+
+Linear hypothesis test:
+pre_trend = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar + pre_trend
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F    Pr(>F)
+1     48
+2     47  1 13.949 0.0005073 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Linear hypothesis test:
+regionNortheast = 0
+regionSouth = 0
+regionWest = 0
+coastalyes = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar + pre_trend + region + coastal
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F Pr(>F)
+1     47
+2     43  4 0.7368  0.572
+
+Linear hypothesis test:
+prewar:regionNortheast = 0
+prewar:regionSouth = 0
+prewar:regionWest = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar * region
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F   Pr(>F)
+1     45
+2     42  3 4.6702 0.006636 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+	Shapiro-Wilk normality test
+
+data:  residuals(trend)
+W = 0.90706, p-value = 0.0008287
+
+
+	studentized Breusch-Pagan test
+
+data:  trend
+BP = 2.1835, df = 2, p-value = 0.3356
+
+   prewar pre_trend
+ 3.032342  3.032342
+
+	RESET test
+
+data:  trend
+RESET = 0.80455, df1 = 2, df2 = 45, p-value = 0.4536
+
+        state prewar pre_trend increase
+1  California   4.52      0.64     1.01
+2  Washington   4.18      0.76     0.97
+19  Minnesota   2.84      0.40     0.68
+43   Kentucky   2.84      0.36     0.88
+
+Call:
+lm(formula = increase ~ prewar + pre_trend, data = states, subset = final_cooks <=
+    4/nrow(states))
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.051308 -0.010912  0.001195  0.012275  0.043097
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  0.25955    0.02836   9.153 1.18e-11 ***
+prewar       0.21934    0.01299  16.880  < 2e-16 ***
+pre_trend   -0.33075    0.05601  -5.905 5.02e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.01981 on 43 degrees of freedom
+Multiple R-squared:  0.8949,	Adjusted R-squared:  0.8901
+F-statistic: 183.1 on 2 and 43 DF,  p-value: < 2.2e-16
+
+              Original Sensitivity
+(Intercept)  0.2714187   0.2595519
+prewar       0.2108210   0.2193428
+pre_trend   -0.2885861  -0.3307486
+     region  increase
+1   Midwest 0.7616667
+2 Northeast 0.8181818
+3     South 0.7742857
+4      West 0.8715385
+            Df  Sum Sq Mean Sq F value   Pr(>F)
+region       3 0.09514 0.03171   9.265 6.63e-05 ***
+Residuals   46 0.15744 0.00342
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+	One-way analysis of means (not assuming equal variances)
+
+data:  increase and region
+F = 9.4091, num df = 3.000, denom df = 23.646, p-value = 0.0002817
+
+Analysis of Variance Table
+
+Model 1: increase ~ prewar
+Model 2: increase ~ prewar + region
+  Res.Df      RSS Df Sum of Sq      F Pr(>F)
+1     48 0.051932
+2     45 0.049264  3 0.0026683 0.8125 0.4937
+
+Linear hypothesis test:
+regionNortheast = 0
+regionSouth = 0
+regionWest = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar + region
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F Pr(>F)
+1     48
+2     45  3 0.9372 0.4306
+     region  increase
+1   Midwest 0.7616667
+2 Northeast 0.8222222
+3     South 0.7775000
+4      West 0.8715385
+            Df  Sum Sq Mean Sq F value   Pr(>F)
+region       3 0.09479 0.03160   9.211 6.96e-05 ***
+Residuals   46 0.15779 0.00343
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+	One-way analysis of means (not assuming equal variances)
+
+data:  increase and region
+F = 10.179, num df = 3.000, denom df = 24.267, p-value = 0.0001586
+
+Analysis of Variance Table
+
+Model 1: increase ~ prewar
+Model 2: increase ~ prewar + region
+  Res.Df      RSS Df Sum of Sq      F Pr(>F)
+1     48 0.051932
+2     45 0.049281  3 0.0026507 0.8068 0.4967
+
+Linear hypothesis test:
+regionNortheast = 0
+regionSouth = 0
+regionWest = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar + region
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F Pr(>F)
+1     48
+2     45  3 1.0291 0.3888
+           Model       RMSE        MAE
+        Extended 0.02822555 0.01969256
+           Trend 0.02861115 0.01944413
+            Full 0.02900325 0.01998973
+        Baseline 0.03803850 0.02582591
+ Region_Adjusted 0.04053059 0.02740993
+     Interaction 0.04197256 0.02807080
+
+FINAL GROUP 2 CHECKS COMPLETED
+R version 4.4.1 (2024-06-14)
+Platform: x86_64-apple-darwin20
+Running under: macOS 15.3
+
+Matrix products: default
+BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: America/Chicago
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+other attached packages:
+[1] car_3.1-5      carData_3.0-5  sandwich_3.1-2 lmtest_0.9-40  zoo_1.8-15     ggplot2_4.0.3
+
+loaded via a namespace (and not attached):
+ [1] vctrs_0.7.3        nlme_3.1-164       cli_3.6.5          rlang_1.3.0        Formula_1.2-5
+ [6] generics_0.1.4     textshaping_1.0.4  S7_0.2.0           labeling_0.4.3     glue_1.7.0
+[11] ragg_1.5.0         scales_1.4.0       fansi_1.0.6        grid_4.4.1         tibble_3.2.1
+[16] abind_1.4-8        lifecycle_1.0.5    compiler_4.4.1     dplyr_1.2.1        RColorBrewer_1.1-3
+[21] pkgconfig_2.0.3    mgcv_1.9-1         rstudioapi_0.17.1  systemfonts_1.3.1  farver_2.1.2
+[26] lattice_0.22-6     R6_2.5.1           tidyselect_1.2.1   utf8_1.2.4         splines_4.4.1
+[31] pillar_1.9.0       magrittr_2.0.3     Matrix_1.7-0       withr_3.0.1        tools_4.4.1
+[36] gtable_0.3.6
+
+GROUPS 1 AND 2 COMPLETED SUCCESSFULLY

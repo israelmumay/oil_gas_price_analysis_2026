@@ -508,3 +508,63 @@ cat(
 
 cat("--------------------------------------------------\n")
 cat("Regression and ANOVA completed successfully.\n")
+
+# 21. Final model audit and regional sensitivity
+final_model <- trend
+print(summary(final_model))
+print(lmtest::coeftest(final_model, vcov. = sandwich::vcovHC(final_model, type = "HC3")))
+print(lmtest::coefci(final_model, vcov. = sandwich::vcovHC(final_model, type = "HC3")))
+print(anova(base, trend)); print(anova(trend, extended)); print(anova(extended, full))
+robust_joint <- function(fit, pattern) {
+  terms <- grep(pattern, names(coef(fit)), value = TRUE)
+  stopifnot(length(terms) > 0)
+  car::linearHypothesis(fit, paste(terms, "= 0"),
+                        vcov. = sandwich::vcovHC(fit, type = "HC3"), test = "F")
+}
+print(robust_joint(trend, "^pre_trend$"))
+print(robust_joint(extended, "^region|^coastal"))
+print(robust_joint(interaction, ":"))
+print(shapiro.test(residuals(trend))); print(lmtest::bptest(trend))
+print(car::vif(trend)); print(lmtest::resettest(trend))
+final_cooks <- cooks.distance(trend)
+print(states[final_cooks > 4/nrow(states), c("state", "prewar", "pre_trend", "increase")])
+final_sensitivity <- lm(increase ~ prewar + pre_trend, states,
+                        subset = final_cooks <= 4/nrow(states))
+print(summary(final_sensitivity))
+print(cbind(Original = coef(trend), Sensitivity = coef(final_sensitivity)))
+png("figures/R_trend_model_diagnostics.png", width = 1800, height = 1600, res = 180)
+tryCatch({par(mfrow = c(2, 2)); plot(trend)}, finally = dev.off())
+
+states_standard <- states
+region_check <- as.character(state.region[match(states$state, state.name)])
+region_check[region_check == "North Central"] <- "Midwest"
+states_standard$region <- factor(region_check)
+for (d in list(original = states, standard = states_standard)) {
+  print(aggregate(increase ~ region, d, mean))
+  print(summary(aov(increase ~ region, d)))
+  print(oneway.test(increase ~ region, d))
+  fit <- lm(increase ~ prewar + region, d)
+  print(anova(lm(increase ~ prewar, d), fit))
+  print(robust_joint(fit, "^region"))
+}
+
+# 22. Five-fold comparison of fixed candidate models
+set.seed(1)
+folds <- sample(rep(1:5, length.out = nrow(states)))
+audit_models <- list(Baseline = base, Region_Adjusted = adjusted, Trend = trend,
+                     Extended = extended, Full = full, Interaction = interaction)
+cv_model <- function(model) {
+  predictions <- rep(NA_real_, nrow(states))
+  for (fold in 1:5) {
+    fit <- lm(formula(model), data = states[folds != fold, ])
+    predictions[folds == fold] <- predict(fit, newdata = states[folds == fold, ])
+  }
+  errors <- states$increase - predictions
+  c(RMSE = sqrt(mean(errors^2)), MAE = mean(abs(errors)))
+}
+cv_results <- as.data.frame(t(sapply(audit_models, cv_model)))
+cv_results$Model <- rownames(cv_results)
+cv_results <- cv_results[order(cv_results$RMSE), c("Model", "RMSE", "MAE")]
+print(cv_results, row.names = FALSE)
+write.csv(cv_results, "data/cleaned/group12_cv_results.csv", row.names = FALSE)
+cat("\nFINAL GROUP 2 CHECKS COMPLETED\n")

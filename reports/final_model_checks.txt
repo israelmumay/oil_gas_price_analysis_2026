@@ -1,0 +1,132 @@
+
+1. NESTED MODEL COMPARISONS
+Analysis of Variance Table
+
+Model 1: increase ~ prewar
+Model 2: increase ~ prewar + pre_trend
+  Res.Df      RSS Df Sum of Sq      F    Pr(>F)
+1     48 0.051932
+2     47 0.037903  1  0.014029 17.396 0.0001296 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Analysis of Variance Table
+
+Model 1: increase ~ prewar + pre_trend
+Model 2: increase ~ prewar + pre_trend + region + coastal
+  Res.Df      RSS Df Sum of Sq      F Pr(>F)
+1     47 0.037903
+2     43 0.032758  4 0.0051449 1.6884 0.1702
+Analysis of Variance Table
+
+Model 1: increase ~ prewar + pre_trend + region + coastal
+Model 2: increase ~ prewar + pre_trend + region + coastal + log_density
+  Res.Df      RSS Df  Sum of Sq      F Pr(>F)
+1     43 0.032758
+2     42 0.031950  1 0.00080781 1.0619 0.3087
+
+2. ROBUST PRE-WAR TREND TEST
+
+Linear hypothesis test:
+pre_trend = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar + pre_trend
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F    Pr(>F)
+1     48
+2     47  1 13.949 0.0005073 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+3. ROBUST ADDITIONAL PREDICTOR TEST
+
+Linear hypothesis test:
+regionNortheast = 0
+regionSouth = 0
+regionWest = 0
+coastalyes = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar + pre_trend + region + coastal
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F Pr(>F)
+1     47
+2     43  4 0.7368  0.572
+
+4. ROBUST INTERACTION TEST
+
+Linear hypothesis test:
+prewar:regionNortheast = 0
+prewar:regionSouth = 0
+prewar:regionWest = 0
+
+Model 1: restricted model
+Model 2: increase ~ prewar * region
+
+Note: Coefficient covariance matrix supplied.
+
+  Res.Df Df      F   Pr(>F)
+1     45
+2     42  3 4.6702 0.006636 **
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+5. FINAL MODEL DIAGNOSTICS
+
+	Shapiro-Wilk normality test
+
+data:  residuals(final_model)
+W = 0.90706, p-value = 0.0008287
+
+
+	studentized Breusch-Pagan test
+
+data:  final_model
+BP = 2.1835, df = 2, p-value = 0.3356
+
+   prewar pre_trend
+ 3.032342  3.032342
+
+	RESET test
+
+data:  final_model
+RESET = 0.80455, df1 = 2, df2 = 45, p-value = 0.4536
+
+
+6. FINAL MODEL SENSITIVITY
+        state prewar pre_trend increase
+1  California   4.52      0.64     1.01
+2  Washington   4.18      0.76     0.97
+19  Minnesota   2.84      0.40     0.68
+43   Kentucky   2.84      0.36     0.88
+
+Call:
+lm(formula = increase ~ prewar + pre_trend, data = states, subset = final_cooks <=
+    final_threshold)
+
+Residuals:
+      Min        1Q    Median        3Q       Max
+-0.051308 -0.010912  0.001195  0.012275  0.043097
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  0.25955    0.02836   9.153 1.18e-11 ***
+prewar       0.21934    0.01299  16.880  < 2e-16 ***
+pre_trend   -0.33075    0.05601  -5.905 5.02e-07 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.01981 on 43 degrees of freedom
+Multiple R-squared:  0.8949,	Adjusted R-squared:  0.8901
+F-statistic: 183.1 on 2 and 43 DF,  p-value: < 2.2e-16
+
+              Original Sensitivity
+(Intercept)  0.2714187   0.2595519
+prewar       0.2108210   0.2193428
+pre_trend   -0.2885861  -0.3307486
+
+FINAL MODEL CHECKS COMPLETED
